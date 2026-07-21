@@ -45,6 +45,11 @@ class Application:
             "--csv",
             help="Export CSV"
         )
+        
+        parser.add_argument(
+            "--pcap",
+            help="Export packets to PCAP"
+        )
 
         parser.add_argument(
             "--list-interfaces",

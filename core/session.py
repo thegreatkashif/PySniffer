@@ -24,7 +24,10 @@ class CaptureSession:
 
         self.statistics.update(parsed)
 
-        self.exporter.add_packet(parsed)
+        self.exporter.add_packet(
+            parsed,
+            packet
+        )
 
         self.dashboard.update(
             parsed,
@@ -85,3 +88,6 @@ class CaptureSession:
 
         if args.csv:
             self.exporter.export_csv(args.csv)
+
+        if getattr(args, "pcap", None):
+            self.exporter.export_pcap(args.pcap)
