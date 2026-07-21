@@ -50,7 +50,11 @@ class Application:
             "--pcap",
             help="Export packets to PCAP"
         )
-
+        
+        parser.add_argument(
+            "--pcap-read",
+            help="Read packets from a PCAP file"
+        )
         parser.add_argument(
             "--list-interfaces",
             action="store_true",

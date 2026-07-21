@@ -1,28 +1,26 @@
-from scapy.all import sniff
+from scapy.all import sniff, rdpcap
 
 
-def capture_packets(interface=None, count=0, packet_filter=None, callback=None):
-    """
-    Capture network packets using Scapy.
-
-    interface:
-        Network interface name. None lets Scapy choose the default.
-
-    count:
-        Number of packets to capture.
-        0 means capture continuously until Ctrl+C.
-
-    packet_filter:
-        BPF capture filter such as "tcp", "udp", or "icmp".
-
-    callback:
-        Function called whenever a packet is captured.
-    """
+def capture_packets(
+    callback,
+    interface=None,
+    count=0,
+    packet_filter=None,
+):
 
     sniff(
         iface=interface,
-        count=count,
-        filter=packet_filter if packet_filter else None,
         prn=callback,
+        filter=packet_filter if packet_filter else None,
+        count=count,
         store=False,
     )
+
+
+def read_pcap(filename, callback):
+
+    packets = rdpcap(filename)
+
+    for packet in packets:
+
+        callback(packet)

@@ -1,6 +1,6 @@
 import threading
 
-from scanner.capture import capture_packets
+from scanner.capture import capture_packets, read_pcap
 from scanner.exporter import Exporter
 from scanner.filters import get_bpf_filter, validate_filter
 from scanner.parser import parse_packet
@@ -26,15 +26,24 @@ class CaptureSession:
 
         self.exporter.add_packet(
             parsed,
-            packet
+            packet,
         )
 
         self.dashboard.update(
             parsed,
-            self.statistics.snapshot()
+            self.statistics.snapshot(),
         )
 
     def capture_worker(self):
+
+        if self.args.pcap_read:
+
+            read_pcap(
+                self.args.pcap_read,
+                self.handle_packet,
+            )
+
+            return
 
         protocol_filter = None
 
@@ -89,5 +98,5 @@ class CaptureSession:
         if args.csv:
             self.exporter.export_csv(args.csv)
 
-        if getattr(args, "pcap", None):
+        if args.pcap:
             self.exporter.export_pcap(args.pcap)
