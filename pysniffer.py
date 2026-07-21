@@ -1,28 +1,47 @@
 import argparse
-from colorama import Fore, Style, init
+
+from colorama import Fore, init
+
+from scanner.capture import capture_packets
 
 init(autoreset=True)
 
 
 def banner():
-    print(Fore.CYAN + "=" * 50)
+    print(Fore.CYAN + "=" * 60)
     print(Fore.GREEN + "PySniffer - Python Packet Analyzer")
-    print(Fore.CYAN + "=" * 50)
+    print(Fore.CYAN + "=" * 60)
+
+
+def display_packet(packet):
+    """
+    Display a basic one-line summary for each captured packet.
+    """
+
+    print(Fore.GREEN + "[PACKET] " + Fore.WHITE + packet.summary())
 
 
 def main():
     parser = argparse.ArgumentParser(
-        description="PySniffer - Network Packet Analyzer"
+        prog="PySniffer",
+        description="A Python-based network packet analyzer."
     )
 
     parser.add_argument(
         "--interface",
-        help="Network interface to capture packets from"
+        help="Network interface used for packet capture"
     )
 
     parser.add_argument(
         "--filter",
-        help="Protocol filter (tcp, udp, icmp, dns)"
+        help="Capture filter such as tcp, udp, or icmp"
+    )
+
+    parser.add_argument(
+        "--count",
+        type=int,
+        default=0,
+        help="Number of packets to capture (0 = unlimited)"
     )
 
     parser.add_argument(
@@ -35,25 +54,38 @@ def main():
         help="Export captured packets to CSV"
     )
 
-    parser.add_argument(
-        "--count",
-        type=int,
-        default=0,
-        help="Number of packets to capture (0 = unlimited)"
-    )
-
     args = parser.parse_args()
 
     banner()
 
-    print(Fore.YELLOW + "Selected Options")
-    print("-" * 50)
-    print(f"Interface : {args.interface}")
-    print(f"Filter    : {args.filter}")
-    print(f"JSON File : {args.json}")
-    print(f"CSV File  : {args.csv}")
-    print(f"Count     : {args.count}")
-    print("-" * 50)
+    print(f"Interface : {args.interface or 'Automatic'}")
+    print(f"Filter    : {args.filter or 'None'}")
+    print(f"Count     : {args.count or 'Unlimited'}")
+
+    print(Fore.YELLOW + "\nStarting packet capture...")
+    print(Fore.YELLOW + "Press Ctrl+C to stop an unlimited capture.\n")
+
+    try:
+        capture_packets(
+            interface=args.interface,
+            count=args.count,
+            packet_filter=args.filter,
+            callback=display_packet,
+        )
+
+    except PermissionError:
+        print(
+            Fore.RED
+            + "\nPermission denied. Run PowerShell as Administrator."
+        )
+
+    except KeyboardInterrupt:
+        print(Fore.YELLOW + "\nCapture stopped by user.")
+
+    except Exception as error:
+        print(Fore.RED + f"\nCapture error: {error}")
+
+    print(Fore.CYAN + "\nCapture complete.")
 
 
 if __name__ == "__main__":
