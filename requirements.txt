@@ -1,0 +1,5 @@
+scapy
+psutil
+colorama
+pytest
+tqdm
