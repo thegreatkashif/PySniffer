@@ -5,6 +5,11 @@ from colorama import Fore, init
 from scanner.capture import capture_packets
 from scanner.parser import parse_packet
 from scanner.display import print_header, display_packet
+from scanner.filters import (
+    VALID_FILTERS,
+    validate_filter,
+    get_bpf_filter,
+)
 
 
 init(autoreset=True)
@@ -39,7 +44,11 @@ def main():
 
     parser.add_argument(
         "--filter",
-        help="Capture filter such as tcp, udp, or icmp"
+        dest="protocol_filter",
+        help=(
+            "Protocol filter: "
+            + ", ".join(sorted(VALID_FILTERS))
+        )
     )
 
     parser.add_argument(
@@ -61,11 +70,40 @@ def main():
 
     args = parser.parse_args()
 
+    if args.count < 0:
+        parser.error("--count cannot be negative.")
+
+    protocol_filter = None
+
+    if args.protocol_filter:
+        protocol_filter = validate_filter(
+            args.protocol_filter
+        )
+
+        if protocol_filter is None:
+            parser.error(
+                "Invalid filter. Available filters: "
+                + ", ".join(sorted(VALID_FILTERS))
+            )
+
+    bpf_filter = get_bpf_filter(protocol_filter)
+
     banner()
 
-    print(f"Interface : {args.interface or 'Automatic'}")
-    print(f"Filter    : {args.filter or 'None'}")
-    print(f"Count     : {args.count or 'Unlimited'}")
+    print(
+        f"Interface : "
+        f"{args.interface or 'Automatic'}"
+    )
+
+    print(
+        f"Filter    : "
+        f"{protocol_filter or 'None'}"
+    )
+
+    print(
+        f"Count     : "
+        f"{args.count or 'Unlimited'}"
+    )
 
     print(
         Fore.YELLOW
@@ -83,14 +121,15 @@ def main():
         capture_packets(
             interface=args.interface,
             count=args.count,
-            packet_filter=args.filter,
+            packet_filter=bpf_filter,
             callback=handle_packet,
         )
 
     except PermissionError:
         print(
             Fore.RED
-            + "\nPermission denied. Run PowerShell as Administrator."
+            + "\nPermission denied. "
+            + "Run PowerShell as Administrator."
         )
 
     except KeyboardInterrupt:
