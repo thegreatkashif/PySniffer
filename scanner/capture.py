@@ -22,7 +22,7 @@ def capture_packets(interface=None, count=0, packet_filter=None, callback=None):
     sniff(
         iface=interface,
         count=count,
-        filter=packet_filter,
+        filter=packet_filter if packet_filter else None,
         prn=callback,
         store=False,
     )

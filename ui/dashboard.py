@@ -1,3 +1,5 @@
+from collections import deque
+
 from rich.console import Console
 from rich.live import Live
 from rich.layout import Layout
@@ -12,6 +14,8 @@ console = Console()
 
 class Dashboard:
 
+    MAX_ROWS = 100
+
     def __init__(self):
 
         self.layout = Layout()
@@ -22,6 +26,8 @@ class Dashboard:
             Layout(name="footer", size=5),
         )
 
+        self.rows = deque(maxlen=self.MAX_ROWS)
+
         self.table = packet_table()
 
         self.layout["header"].update(header())
@@ -30,17 +36,25 @@ class Dashboard:
 
     def add_packet(self, packet):
 
-        self.table.add_row(
-            packet["time"],
-            packet["source"],
-            packet["destination"],
-            packet["protocol"],
-            str(packet["source_port"]),
-            str(packet["destination_port"]),
-            str(packet["size"]),
-        )
+        self.rows.append(packet)
+
+        self.refresh()
 
     def refresh(self):
+
+        self.table = packet_table()
+
+        for packet in self.rows:
+
+            self.table.add_row(
+                packet["time"],
+                packet["source"],
+                packet["destination"],
+                packet["protocol"],
+                str(packet["source_port"]),
+                str(packet["destination_port"]),
+                str(packet["size"]),
+            )
 
         self.layout["table"].update(self.table)
 
@@ -48,7 +62,7 @@ class Dashboard:
 
         return Live(
             self.layout,
-            refresh_per_second=4,
             console=console,
+            refresh_per_second=10,
             screen=True,
         )
