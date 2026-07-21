@@ -4,6 +4,7 @@ from colorama import Fore, init
 
 from scanner.capture import capture_packets
 from scanner.parser import parse_packet
+from scanner.exporter import Exporter
 from scanner.display import print_header, display_packet
 
 from scanner.statistics import Statistics
@@ -16,6 +17,7 @@ from scanner.filters import (
 
 init(autoreset=True)
 stats = Statistics()
+exporter = Exporter()
 
 
 def banner():
@@ -30,8 +32,9 @@ def handle_packet(packet):
 
     stats.update(packet_data)
 
-    display_packet(packet_data)
+    exporter.add_packet(packet_data)
 
+    display_packet(packet_data)
 
 def main():
     parser = argparse.ArgumentParser(
@@ -152,6 +155,14 @@ def main():
 )
 
     stats.report()
+
+    if args.json:
+
+       exporter.export_json(args.json)
+
+    if args.csv:
+
+       exporter.export_csv(args.csv)
 
 
 if __name__ == "__main__":

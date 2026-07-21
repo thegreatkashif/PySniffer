@@ -1,0 +1,182 @@
+[
+    {
+        "time": "12:06:51",
+        "source": "192.168.1.14",
+        "destination": "224.0.0.252",
+        "protocol": "IPv4",
+        "source_port": "-",
+        "destination_port": "-",
+        "size": 46
+    },
+    {
+        "time": "12:06:51",
+        "source": "fe80::42b6:897c:9ffb:b2d8",
+        "destination": "ff02::16",
+        "protocol": "IPv6",
+        "source_port": "-",
+        "destination_port": "-",
+        "size": 90
+    },
+    {
+        "time": "12:06:52",
+        "source": "20.42.73.24",
+        "destination": "192.168.1.14",
+        "protocol": "HTTPS",
+        "source_port": 443,
+        "destination_port": 49285,
+        "size": 60
+    },
+    {
+        "time": "12:06:52",
+        "source": "20.42.73.24",
+        "destination": "192.168.1.14",
+        "protocol": "HTTPS",
+        "source_port": 443,
+        "destination_port": 49285,
+        "size": 60
+    },
+    {
+        "time": "12:06:52",
+        "source": "20.42.73.24",
+        "destination": "192.168.1.14",
+        "protocol": "HTTPS",
+        "source_port": 443,
+        "destination_port": 49285,
+        "size": 154
+    },
+    {
+        "time": "12:06:52",
+        "source": "192.168.1.14",
+        "destination": "20.42.73.24",
+        "protocol": "HTTPS",
+        "source_port": 49285,
+        "destination_port": 443,
+        "size": 89
+    },
+    {
+        "time": "12:06:52",
+        "source": "fe80::42b6:897c:9ffb:b2d8",
+        "destination": "ff02::1:3",
+        "protocol": "UDP",
+        "source_port": 53184,
+        "destination_port": 5355,
+        "size": 91
+    },
+    {
+        "time": "12:06:52",
+        "source": "192.168.1.14",
+        "destination": "224.0.0.252",
+        "protocol": "UDP",
+        "source_port": 53184,
+        "destination_port": 5355,
+        "size": 71
+    },
+    {
+        "time": "12:06:52",
+        "source": "192.168.1.14",
+        "destination": "148.113.17.95",
+        "protocol": "HTTPS",
+        "source_port": 52160,
+        "destination_port": 443,
+        "size": 55
+    },
+    {
+        "time": "12:06:52",
+        "source": "148.113.17.95",
+        "destination": "192.168.1.14",
+        "protocol": "HTTPS",
+        "source_port": 443,
+        "destination_port": 52160,
+        "size": 66
+    },
+    {
+        "time": "12:06:52",
+        "source": "20.42.73.24",
+        "destination": "192.168.1.14",
+        "protocol": "HTTPS",
+        "source_port": 443,
+        "destination_port": 49285,
+        "size": 60
+    },
+    {
+        "time": "12:06:52",
+        "source": "192.168.1.14",
+        "destination": "192.168.1.1",
+        "protocol": "DNS",
+        "source_port": 54008,
+        "destination_port": 53,
+        "size": 92
+    },
+    {
+        "time": "12:06:52",
+        "source": "192.168.1.1",
+        "destination": "192.168.1.14",
+        "protocol": "DNS",
+        "source_port": 53,
+        "destination_port": 54008,
+        "size": 215
+    },
+    {
+        "time": "12:06:52",
+        "source": "192.168.1.14",
+        "destination": "20.89.1.12",
+        "protocol": "HTTPS",
+        "source_port": 58712,
+        "destination_port": 443,
+        "size": 66
+    },
+    {
+        "time": "12:06:52",
+        "source": "20.89.1.12",
+        "destination": "192.168.1.14",
+        "protocol": "HTTPS",
+        "source_port": 443,
+        "destination_port": 58712,
+        "size": 66
+    },
+    {
+        "time": "12:06:52",
+        "source": "192.168.1.14",
+        "destination": "20.89.1.12",
+        "protocol": "HTTPS",
+        "source_port": 58712,
+        "destination_port": 443,
+        "size": 54
+    },
+    {
+        "time": "12:06:52",
+        "source": "192.168.1.14",
+        "destination": "20.89.1.12",
+        "protocol": "HTTPS",
+        "source_port": 58712,
+        "destination_port": 443,
+        "size": 571
+    },
+    {
+        "time": "12:06:53",
+        "source": "172.64.146.215",
+        "destination": "192.168.1.14",
+        "protocol": "UDP",
+        "source_port": 443,
+        "destination_port": 52131,
+        "size": 663
+    },
+    {
+        "time": "12:06:53",
+        "source": "192.168.1.14",
+        "destination": "172.64.146.215",
+        "protocol": "UDP",
+        "source_port": 52131,
+        "destination_port": 443,
+        "size": 87
+    },
+    {
+        "time": "12:06:53",
+        "source": "192.168.1.14",
+        "destination": "172.66.175.30",
+        "protocol": "HTTPS",
+        "source_port": 64727,
+        "destination_port": 443,
+        "size": 55
+    }
+]
