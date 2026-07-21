@@ -1,80 +1,118 @@
 from collections import Counter
+import time
 
 
 class Statistics:
 
     def __init__(self):
+
+        self.start_time = time.time()
+        self.end_time = None
+
         self.total_packets = 0
         self.total_bytes = 0
 
         self.protocols = Counter()
-
         self.sources = Counter()
-
         self.destinations = Counter()
 
     def update(self, packet):
 
         self.total_packets += 1
-
         self.total_bytes += packet["size"]
 
         self.protocols[packet["protocol"]] += 1
-
         self.sources[packet["source"]] += 1
-
         self.destinations[packet["destination"]] += 1
+
+    def finish(self):
+        self.end_time = time.time()
+
+    def duration(self):
+
+        if self.end_time is None:
+            return time.time() - self.start_time
+
+        return self.end_time - self.start_time
+
+    def packets_per_second(self):
+
+        d = self.duration()
+
+        if d == 0:
+            return 0
+
+        return self.total_packets / d
+
+    def bytes_per_second(self):
+
+        d = self.duration()
+
+        if d == 0:
+            return 0
+
+        return self.total_bytes / d
+
+    def human_size(self, size):
+
+        units = ["B", "KB", "MB", "GB"]
+
+        index = 0
+
+        while size >= 1024 and index < len(units) - 1:
+
+            size /= 1024
+            index += 1
+
+        return f"{size:.2f} {units[index]}"
 
     def report(self):
 
+        self.finish()
+
         print()
 
-        print("=" * 60)
+        print("=" * 65)
+        print("CAPTURE SUMMARY")
+        print("=" * 65)
 
-        print("CAPTURE STATISTICS")
+        print(f"Duration           : {self.duration():.2f} seconds")
 
-        print("=" * 60)
+        print(f"Packets Captured   : {self.total_packets}")
 
-        print(f"Packets Captured : {self.total_packets}")
+        print(f"Total Data         : {self.human_size(self.total_bytes)}")
 
-        print(f"Total Bytes      : {self.total_bytes}")
+        avg = 0
 
         if self.total_packets:
+            avg = self.total_bytes / self.total_packets
 
-            avg = self.total_bytes // self.total_packets
+        print(f"Average Packet     : {avg:.2f} bytes")
 
-        else:
+        print(f"Packets / Second   : {self.packets_per_second():.2f}")
 
-            avg = 0
-
-        print(f"Average Size     : {avg} bytes")
+        print(f"Bytes / Second     : {self.human_size(self.bytes_per_second())}")
 
         print()
 
-        print("Protocol Counts")
-
+        print("Protocol Distribution")
         print("-" * 40)
 
-        for protocol, count in self.protocols.items():
-
-            print(f"{protocol:<15}{count}")
+        for protocol, count in self.protocols.most_common():
+            print(f"{protocol:<20}{count}")
 
         print()
 
         print("Top Source Hosts")
-
         print("-" * 40)
 
         for host, count in self.sources.most_common(5):
-
-            print(f"{host:<25}{count}")
+            print(f"{host:<30}{count}")
 
         print()
 
         print("Top Destination Hosts")
-
         print("-" * 40)
 
         for host, count in self.destinations.most_common(5):
-
-            print(f"{host:<25}{count}")
+            print(f"{host:<30}{count}")
