@@ -2,6 +2,7 @@ import argparse
 import sys
 
 from core.session import CaptureSession
+from scanner.filters import available_filters
 from scanner.interfaces import list_interfaces
 
 
@@ -15,50 +16,26 @@ class Application:
 
         parser = argparse.ArgumentParser(
             prog="PySniffer",
-            description="Python Packet Analyzer"
+            description="Professional Packet Analyzer",
         )
 
-        parser.add_argument(
-            "--interface",
-            help="Capture interface"
-        )
+        parser.add_argument("--interface")
+        parser.add_argument("--filter", dest="protocol_filter")
+        parser.add_argument("--count", type=int, default=0)
 
-        parser.add_argument(
-            "--filter",
-            dest="protocol_filter",
-            help="Protocol filter"
-        )
+        parser.add_argument("--json")
+        parser.add_argument("--csv")
+        parser.add_argument("--pcap")
+        parser.add_argument("--pcap-read")
 
-        parser.add_argument(
-            "--count",
-            type=int,
-            default=0,
-            help="Number of packets"
-        )
-
-        parser.add_argument(
-            "--json",
-            help="Export JSON"
-        )
-
-        parser.add_argument(
-            "--csv",
-            help="Export CSV"
-        )
-        
-        parser.add_argument(
-            "--pcap",
-            help="Export packets to PCAP"
-        )
-        
-        parser.add_argument(
-            "--pcap-read",
-            help="Read packets from a PCAP file"
-        )
         parser.add_argument(
             "--list-interfaces",
-            action="store_true",
-            help="List available interfaces"
+            action="store_true"
+        )
+
+        parser.add_argument(
+            "--list-filters",
+            action="store_true"
         )
 
         return parser
@@ -71,22 +48,25 @@ class Application:
 
         if args.list_interfaces:
 
-            print()
-            print("=" * 80)
-            print("AVAILABLE NETWORK INTERFACES")
-            print("=" * 80)
+            print("\nAvailable Interfaces\n")
 
-            interfaces = list_interfaces()
+            for index, iface in enumerate(
+                list_interfaces(),
+                start=1
+            ):
 
-            for index, iface in enumerate(interfaces, start=1):
+                print(f"{index}. {iface['name']}")
 
-                print(f"[{index}] {iface['name']}")
+            sys.exit()
 
-                if iface["description"]:
-                    print(f"     {iface['description']}")
+        if args.list_filters:
 
-                print()
+            print("\nAvailable Filters\n")
 
-            sys.exit(0)
+            for item in available_filters():
+
+                print(item)
+
+            sys.exit()
 
         self.session.run(args)
