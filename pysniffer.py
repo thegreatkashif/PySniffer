@@ -5,6 +5,8 @@ from colorama import Fore, init
 from scanner.capture import capture_packets
 from scanner.parser import parse_packet
 from scanner.display import print_header, display_packet
+
+from scanner.statistics import Statistics
 from scanner.filters import (
     VALID_FILTERS,
     validate_filter,
@@ -13,6 +15,7 @@ from scanner.filters import (
 
 
 init(autoreset=True)
+stats = Statistics()
 
 
 def banner():
@@ -22,11 +25,10 @@ def banner():
 
 
 def handle_packet(packet):
-    """
-    Parse and display each captured packet.
-    """
 
     packet_data = parse_packet(packet)
+
+    stats.update(packet_data)
 
     display_packet(packet_data)
 
@@ -145,9 +147,11 @@ def main():
         )
 
     print(
-        Fore.CYAN
-        + "\nCapture complete."
-    )
+    Fore.CYAN
+    + "\nCapture complete."
+)
+
+    stats.report()
 
 
 if __name__ == "__main__":
