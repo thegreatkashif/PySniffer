@@ -63,6 +63,6 @@ class Dashboard:
         return Live(
             self.layout,
             console=console,
-            refresh_per_second=10,
+            refresh_per_second=30,
             screen=True,
         )

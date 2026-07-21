@@ -1,28 +1,22 @@
 import argparse
 
-from colorama import init
-
 from core.session import CaptureSession
-
-init(autoreset=True)
 
 
 class Application:
 
     def __init__(self):
-
         self.session = CaptureSession()
 
     def build_parser(self):
-
         parser = argparse.ArgumentParser(
             prog="PySniffer",
-            description="Python Network Packet Analyzer",
+            description="Python Packet Analyzer"
         )
 
         parser.add_argument(
             "--interface",
-            help="Network interface"
+            help="Capture interface"
         )
 
         parser.add_argument(
@@ -35,7 +29,7 @@ class Application:
             "--count",
             type=int,
             default=0,
-            help="Packet count"
+            help="Packets to capture"
         )
 
         parser.add_argument(
@@ -51,9 +45,7 @@ class Application:
         return parser
 
     def run(self):
-
         parser = self.build_parser()
-
         args = parser.parse_args()
 
-        self.session.start(args)
+        self.session.run(args)
