@@ -3,22 +3,27 @@ import argparse
 from colorama import Fore, init
 
 from scanner.capture import capture_packets
+from scanner.parser import parse_packet
+from scanner.display import print_header, display_packet
+
 
 init(autoreset=True)
 
 
 def banner():
-    print(Fore.CYAN + "=" * 60)
+    print(Fore.CYAN + "=" * 70)
     print(Fore.GREEN + "PySniffer - Python Packet Analyzer")
-    print(Fore.CYAN + "=" * 60)
+    print(Fore.CYAN + "=" * 70)
 
 
-def display_packet(packet):
+def handle_packet(packet):
     """
-    Display a basic one-line summary for each captured packet.
+    Parse and display each captured packet.
     """
 
-    print(Fore.GREEN + "[PACKET] " + Fore.WHITE + packet.summary())
+    packet_data = parse_packet(packet)
+
+    display_packet(packet_data)
 
 
 def main():
@@ -62,15 +67,24 @@ def main():
     print(f"Filter    : {args.filter or 'None'}")
     print(f"Count     : {args.count or 'Unlimited'}")
 
-    print(Fore.YELLOW + "\nStarting packet capture...")
-    print(Fore.YELLOW + "Press Ctrl+C to stop an unlimited capture.\n")
+    print(
+        Fore.YELLOW
+        + "\nStarting packet capture..."
+    )
+
+    print(
+        Fore.YELLOW
+        + "Press Ctrl+C to stop an unlimited capture.\n"
+    )
+
+    print_header()
 
     try:
         capture_packets(
             interface=args.interface,
             count=args.count,
             packet_filter=args.filter,
-            callback=display_packet,
+            callback=handle_packet,
         )
 
     except PermissionError:
@@ -80,12 +94,21 @@ def main():
         )
 
     except KeyboardInterrupt:
-        print(Fore.YELLOW + "\nCapture stopped by user.")
+        print(
+            Fore.YELLOW
+            + "\nCapture stopped by user."
+        )
 
     except Exception as error:
-        print(Fore.RED + f"\nCapture error: {error}")
+        print(
+            Fore.RED
+            + f"\nCapture error: {error}"
+        )
 
-    print(Fore.CYAN + "\nCapture complete.")
+    print(
+        Fore.CYAN
+        + "\nCapture complete."
+    )
 
 
 if __name__ == "__main__":
