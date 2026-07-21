@@ -4,9 +4,10 @@ from rich.console import Console
 from rich.layout import Layout
 from rich.live import Live
 
-from ui.header import header
 from ui.footer import footer
+from ui.header import header
 from ui.table import packet_table
+from ui.stats_panel import build_stats
 
 
 console = Console()
@@ -20,18 +21,29 @@ class Dashboard:
 
         self.rows = deque(maxlen=self.MAX_ROWS)
 
-        self.packet_count = 0
-        self.total_bytes = 0
+        self.stats = {
+            "packets": 0,
+            "bytes": 0,
+            "traffic": "0 B",
+            "duration": 0,
+            "pps": 0,
+            "bps": 0,
+            "bps_human": "0 B",
+            "protocols": {},
+        }
 
         self.layout = Layout()
 
         self.layout.split_column(
-            Layout(name="header", size=5),
-            Layout(name="table"),
+            Layout(name="header", size=7),
+            Layout(name="body"),
             Layout(name="footer", size=3),
         )
 
-        self.table = packet_table()
+        self.layout["body"].split_row(
+            Layout(name="packets", ratio=3),
+            Layout(name="stats", ratio=1),
+        )
 
         self.refresh()
 
@@ -39,21 +51,31 @@ class Dashboard:
 
         units = ["B", "KB", "MB", "GB"]
 
-        i = 0
+        index = 0
 
-        while size >= 1024 and i < len(units) - 1:
+        while size >= 1024 and index < len(units) - 1:
             size /= 1024
-            i += 1
+            index += 1
 
-        return f"{size:.2f} {units[i]}"
+        return f"{size:.2f} {units[index]}"
 
-    def add_packet(self, packet):
-
-        self.packet_count += 1
-
-        self.total_bytes += packet["size"]
+    def update(self, packet, stats):
 
         self.rows.append(packet)
+
+        stats = dict(stats)
+
+        stats["traffic"] = self.human_size(
+            stats.get("bytes", 0)
+        )
+
+        stats["bps_human"] = self.human_size(
+            stats.get("bps", 0)
+        )
+
+        self.stats = stats
+
+        self.refresh()
 
     def refresh(self):
 
@@ -73,20 +95,30 @@ class Dashboard:
 
         self.layout["header"].update(
             header(
-                packets=self.packet_count,
-                traffic=self.human_size(self.total_bytes),
+                interface="Automatic",
+                status="Capturing",
+                packets=self.stats.get("packets", 0),
+                traffic=self.stats.get("traffic", "0 B"),
+                duration=self.stats.get("duration", 0),
+                pps=self.stats.get("pps", 0),
             )
         )
 
-        self.layout["table"].update(table)
+        self.layout["packets"].update(table)
 
-        self.layout["footer"].update(footer())
+        self.layout["stats"].update(
+            build_stats(self.stats)
+        )
+
+        self.layout["footer"].update(
+            footer()
+        )
 
     def start(self):
 
         return Live(
             self.layout,
-            refresh_per_second=30,
             console=console,
+            refresh_per_second=30,
             screen=True,
         )

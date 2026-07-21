@@ -9,24 +9,37 @@ from ui.dashboard import Dashboard
 
 
 class CaptureSession:
+
     def __init__(self):
+
         self.dashboard = Dashboard()
         self.statistics = Statistics()
         self.exporter = Exporter()
+
         self.args = None
 
     def handle_packet(self, packet):
+
         parsed = parse_packet(packet)
 
         self.statistics.update(parsed)
+
         self.exporter.add_packet(parsed)
-        self.dashboard.add_packet(parsed)
+
+        self.dashboard.update(
+            parsed,
+            self.statistics.snapshot()
+        )
 
     def capture_worker(self):
+
         protocol_filter = None
 
         if self.args.protocol_filter:
-            protocol_filter = validate_filter(self.args.protocol_filter)
+
+            protocol_filter = validate_filter(
+                self.args.protocol_filter
+            )
 
             if protocol_filter is None:
                 raise ValueError("Invalid protocol filter")
@@ -39,6 +52,7 @@ class CaptureSession:
         )
 
     def run(self, args):
+
         self.args = args
 
         worker = threading.Thread(
@@ -47,14 +61,19 @@ class CaptureSession:
         )
 
         with self.dashboard.start() as live:
+
             worker.start()
 
             while worker.is_alive():
+
                 self.dashboard.refresh()
+
                 live.update(self.dashboard.layout)
+
                 worker.join(timeout=0.05)
 
             self.dashboard.refresh()
+
             live.update(self.dashboard.layout)
 
         print()

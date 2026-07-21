@@ -1,14 +1,18 @@
 import argparse
+import sys
 
 from core.session import CaptureSession
+from scanner.interfaces import list_interfaces
 
 
 class Application:
 
     def __init__(self):
+
         self.session = CaptureSession()
 
     def build_parser(self):
+
         parser = argparse.ArgumentParser(
             prog="PySniffer",
             description="Python Packet Analyzer"
@@ -29,7 +33,7 @@ class Application:
             "--count",
             type=int,
             default=0,
-            help="Packets to capture"
+            help="Number of packets"
         )
 
         parser.add_argument(
@@ -42,10 +46,38 @@ class Application:
             help="Export CSV"
         )
 
+        parser.add_argument(
+            "--list-interfaces",
+            action="store_true",
+            help="List available interfaces"
+        )
+
         return parser
 
     def run(self):
+
         parser = self.build_parser()
+
         args = parser.parse_args()
+
+        if args.list_interfaces:
+
+            print()
+            print("=" * 80)
+            print("AVAILABLE NETWORK INTERFACES")
+            print("=" * 80)
+
+            interfaces = list_interfaces()
+
+            for index, iface in enumerate(interfaces, start=1):
+
+                print(f"[{index}] {iface['name']}")
+
+                if iface["description"]:
+                    print(f"     {iface['description']}")
+
+                print()
+
+            sys.exit(0)
 
         self.session.run(args)
