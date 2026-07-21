@@ -1,8 +1,8 @@
 from collections import deque
 
 from rich.console import Console
-from rich.live import Live
 from rich.layout import Layout
+from rich.live import Live
 
 from ui.header import header
 from ui.footer import footer
@@ -18,35 +18,50 @@ class Dashboard:
 
     def __init__(self):
 
+        self.rows = deque(maxlen=self.MAX_ROWS)
+
+        self.packet_count = 0
+        self.total_bytes = 0
+
         self.layout = Layout()
 
         self.layout.split_column(
             Layout(name="header", size=5),
             Layout(name="table"),
-            Layout(name="footer", size=5),
+            Layout(name="footer", size=3),
         )
 
-        self.rows = deque(maxlen=self.MAX_ROWS)
-
         self.table = packet_table()
-
-        self.layout["header"].update(header())
-        self.layout["table"].update(self.table)
-        self.layout["footer"].update(footer())
-
-    def add_packet(self, packet):
-
-        self.rows.append(packet)
 
         self.refresh()
 
+    def human_size(self, size):
+
+        units = ["B", "KB", "MB", "GB"]
+
+        i = 0
+
+        while size >= 1024 and i < len(units) - 1:
+            size /= 1024
+            i += 1
+
+        return f"{size:.2f} {units[i]}"
+
+    def add_packet(self, packet):
+
+        self.packet_count += 1
+
+        self.total_bytes += packet["size"]
+
+        self.rows.append(packet)
+
     def refresh(self):
 
-        self.table = packet_table()
+        table = packet_table()
 
         for packet in self.rows:
 
-            self.table.add_row(
+            table.add_row(
                 packet["time"],
                 packet["source"],
                 packet["destination"],
@@ -56,13 +71,22 @@ class Dashboard:
                 str(packet["size"]),
             )
 
-        self.layout["table"].update(self.table)
+        self.layout["header"].update(
+            header(
+                packets=self.packet_count,
+                traffic=self.human_size(self.total_bytes),
+            )
+        )
+
+        self.layout["table"].update(table)
+
+        self.layout["footer"].update(footer())
 
     def start(self):
 
         return Live(
             self.layout,
-            console=console,
             refresh_per_second=30,
+            console=console,
             screen=True,
         )
