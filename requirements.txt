@@ -3,3 +3,4 @@ psutil
 colorama
 pytest
 tqdm
+rich
