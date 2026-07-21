@@ -1,4 +1,5 @@
 from collections import deque
+from threading import Lock
 
 from rich.console import Console
 from rich.layout import Layout
@@ -21,6 +22,8 @@ class Dashboard:
 
         self.rows = deque(maxlen=self.MAX_ROWS)
 
+        self.lock = Lock()
+
         self.stats = {
             "packets": 0,
             "bytes": 0,
@@ -30,6 +33,8 @@ class Dashboard:
             "bps": 0,
             "bps_human": "0 B",
             "protocols": {},
+            "sources": {},
+            "destinations": {},
         }
 
         self.layout = Layout()
@@ -61,27 +66,33 @@ class Dashboard:
 
     def update(self, packet, stats):
 
-        self.rows.append(packet)
+        with self.lock:
 
-        stats = dict(stats)
+            self.rows.append(packet)
 
-        stats["traffic"] = self.human_size(
-            stats.get("bytes", 0)
-        )
+            stats = dict(stats)
 
-        stats["bps_human"] = self.human_size(
-            stats.get("bps", 0)
-        )
+            stats["traffic"] = self.human_size(
+                stats.get("bytes", 0)
+            )
 
-        self.stats = stats
+            stats["bps_human"] = self.human_size(
+                stats.get("bps", 0)
+            )
 
-        self.refresh()
+            self.stats = stats
 
     def refresh(self):
 
+        with self.lock:
+
+            packets = list(self.rows)
+
+            stats = dict(self.stats)
+
         table = packet_table()
 
-        for packet in self.rows:
+        for packet in packets:
 
             table.add_row(
                 packet["time"],
@@ -97,17 +108,17 @@ class Dashboard:
             header(
                 interface="Automatic",
                 status="Capturing",
-                packets=self.stats.get("packets", 0),
-                traffic=self.stats.get("traffic", "0 B"),
-                duration=self.stats.get("duration", 0),
-                pps=self.stats.get("pps", 0),
+                packets=stats.get("packets", 0),
+                traffic=stats.get("traffic", "0 B"),
+                duration=stats.get("duration", 0),
+                pps=stats.get("pps", 0),
             )
         )
 
         self.layout["packets"].update(table)
 
         self.layout["stats"].update(
-            build_stats(self.stats)
+            build_stats(stats)
         )
 
         self.layout["footer"].update(

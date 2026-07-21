@@ -4,13 +4,9 @@ from rich.table import Table
 
 def build_stats(stats):
 
-    table = Table(
-        show_header=True,
-        header_style="bold cyan",
-        expand=True
-    )
+    table = Table(expand=True)
 
-    table.add_column("Metric")
+    table.add_column("Metric", style="cyan")
     table.add_column("Value", justify="right")
 
     table.add_row("Packets", str(stats.get("packets", 0)))
@@ -21,12 +17,11 @@ def build_stats(stats):
 
     table.add_section()
 
-    table.add_row("[bold green]Top Protocols[/bold green]", "")
+    table.add_row("[bold green]Protocols[/bold green]", "")
 
     protocols = stats.get("protocols", {})
 
     if protocols:
-
         for protocol, count in sorted(
             protocols.items(),
             key=lambda x: x[1],
@@ -34,9 +29,7 @@ def build_stats(stats):
         )[:5]:
 
             table.add_row(protocol, str(count))
-
     else:
-
         table.add_row("-", "-")
 
     table.add_section()
@@ -46,21 +39,41 @@ def build_stats(stats):
     sources = stats.get("sources", {})
 
     if sources:
-
         for host, count in sorted(
             sources.items(),
             key=lambda x: x[1],
             reverse=True
         )[:5]:
 
+            if len(host) > 25:
+                host = host[:22] + "..."
+
             table.add_row(host, str(count))
-
     else:
+        table.add_row("-", "-")
 
+    table.add_section()
+
+    table.add_row("[bold magenta]Top Destinations[/bold magenta]", "")
+
+    destinations = stats.get("destinations", {})
+
+    if destinations:
+        for host, count in sorted(
+            destinations.items(),
+            key=lambda x: x[1],
+            reverse=True
+        )[:5]:
+
+            if len(host) > 25:
+                host = host[:22] + "..."
+
+            table.add_row(host, str(count))
+    else:
         table.add_row("-", "-")
 
     return Panel(
         table,
-        title="[bold]Live Statistics[/bold]",
-        border_style="green"
+        title="[bold green]Live Statistics[/bold green]",
+        border_style="green",
     )
